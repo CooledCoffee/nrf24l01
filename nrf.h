@@ -143,6 +143,9 @@ bool nrf_recv(byte* addr, byte* buffer, int timeout) {
     bool success;
     _nrf_set_reg_mb(RX_ADDR_P0, addr, 5);
     _nrf_set_reg(CONFIG, NRF_CONFIG|((1<<PWR_UP)|(1<<PRIM_RX)));
+    CSN = 0; {
+        _nrf_rw(FLUSH_RX);
+    } CSN = 1;
     CE = 1; {
         success = _nrf_wait_for_recv(timeout);
     } CE = 0;
@@ -157,14 +160,12 @@ bool nrf_send(byte* addr, byte* buffer) {
     _nrf_set_reg_mb(TX_ADDR, addr, 5);
     _nrf_set_reg_mb(RX_ADDR_P0, addr, 5);
     _nrf_set_reg(CONFIG, NRF_CONFIG|((1<<PWR_UP)|(0<<PRIM_RX)));
+    CSN = 0; {
+        _nrf_rw(FLUSH_TX);
+    } CSN = 1;
     CE = 1; {
         _nrf_write_tx_payload(buffer);
         success = _nrf_wait_for_send();
-        if (!success) {
-            CSN = 0; {
-                _nrf_rw(FLUSH_TX);
-            } CSN = 1;
-        }
     } CE = 0;
     _nrf_set_reg(STATUS, (1<<TX_DS)|(1<<MAX_RT));
     return success;
