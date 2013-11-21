@@ -17,10 +17,7 @@ void main() {
     }
 
     while (TRUE) {
-        nrf_recv(ADDR_TEST_SLAVE, buffer, 0);
-        if (nrf_send(ADDR_TEST_MASTER, buffer))
-            P0 = buffer[0];
-        else
-            P0 = 0x55;
+        nrf_recv(ADDR_TEST_SLAVE, buffer, -1);
+        nrf_send(ADDR_TEST_MASTER, buffer);
     }
 }
