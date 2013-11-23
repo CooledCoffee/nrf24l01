@@ -7,7 +7,8 @@ byte ADDR_TEST_MASTER[] = {0x02, 0x02, 0x02, 0x02, 0x01};
 byte ADDR_TEST_SLAVE[] = {0x02, 0x02, 0x02, 0x02, 0x02};
 
 void main() {
-    byte counter;
+    int i;
+    byte failures;
     byte buffer[NRF_PAYLOAD_LEN];
     
     sleep(1000);
@@ -16,19 +17,16 @@ void main() {
         return;
     }
 
-    counter = 0;
-    while (TRUE) {
-        sleep(500);
-        counter = (counter + 1) % 8;
-        buffer[0] = ~(1 << counter);
+    for (i = 0; i < 1000; i++) {
         if (!nrf_send(ADDR_TEST_SLAVE, buffer)) {
-            P0 = 0x55;
+            failures++;
+            P0 = failures;
             continue;
         }
-        if (!nrf_recv(ADDR_TEST_MASTER, buffer, 0)) {
-            P0 = 0xaa;
+        if (!nrf_recv(ADDR_TEST_MASTER, buffer, -1)) {
+            failures++;
+            P0 = failures;
             continue;
         }
-        P0 = buffer[0];
     }
 }
