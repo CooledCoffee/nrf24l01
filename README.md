@@ -24,3 +24,8 @@ This library is tested on STC89C52RC2 and should be compatible with AT89S52 and 
 	#define SCK P1_2
 	#define MOSI P1_1
 	#define MISO P1_0
+
+Author
+======
+
+Mengchen LEE: <a href="https://plus.google.com/117704742936410336204" target="_blank">Google Plus</a>, <a href="https://cn.linkedin.com/pub/mengchen-lee/30/8/23a" target="_blank">LinkedIn</a>
