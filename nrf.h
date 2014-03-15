@@ -112,12 +112,6 @@ typedef char bool;
 #define R_RX_PL_WID   0x60
 #define NOP           0xFF
 
-#define CE P1_4
-#define CSN P1_3
-#define SCK P1_2
-#define MOSI P1_1
-#define MISO P1_0
-
 #define NRF_CONFIG ((1<<EN_CRC)|(0<<CRCO))
 #define NRF_PAYLOAD_LEN 16
 

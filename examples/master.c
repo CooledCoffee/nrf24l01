@@ -1,3 +1,8 @@
+#define CE P1_4
+#define CSN P1_3
+#define SCK P1_2
+#define MOSI P1_1
+#define MISO P1_0
 #include "../nrf.h"
 
 char ADDR_TEST_MASTER[] = {0x02, 0x02, 0x02, 0x02, 0x01};
