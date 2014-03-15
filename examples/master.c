@@ -2,13 +2,13 @@
 #include "../common.h"
 #include "../nrf.h"
 
-byte ADDR_TEST_MASTER[] = {0x02, 0x02, 0x02, 0x02, 0x01};
-byte ADDR_TEST_SLAVE[] = {0x02, 0x02, 0x02, 0x02, 0x02};
+char ADDR_TEST_MASTER[] = {0x02, 0x02, 0x02, 0x02, 0x01};
+char ADDR_TEST_SLAVE[] = {0x02, 0x02, 0x02, 0x02, 0x02};
 
 void main() {
     int i;
-    byte failures;
-    byte buffer[NRF_PAYLOAD_LEN];
+    char failures;
+    char buffer[NRF_PAYLOAD_LEN];
     
     _nrf_sleep(1000);
     if (!nrf_init()) {

@@ -116,22 +116,22 @@
 #define NRF_PAYLOAD_LEN 16
 
 bool nrf_init();
-bool nrf_send(byte* addr, byte* buffer);
-bool nrf_recv(byte* addr, byte* buffer, int timeout);
+bool nrf_send(char* addr, char* buffer);
+bool nrf_recv(char* addr, char* buffer, int timeout);
 
 bool _nrf_check_init();
 void _nrf_config();
-byte _nrf_get_reg(byte reg);
-void _nrf_get_reg_mb(byte reg, byte* buffer, byte len);
+char _nrf_get_reg(char reg);
+void _nrf_get_reg_mb(char reg, char* buffer, char len);
 void _nrf_init_pins();
-void _nrf_read_rx_payload(byte* buffer);
-byte _nrf_rw(byte value);
-void _nrf_set_reg(byte reg, byte value);
-void _nrf_set_reg_mb(byte reg, byte* buffer, byte len);
+void _nrf_read_rx_payload(char* buffer);
+char _nrf_rw(char value);
+void _nrf_set_reg(char reg, char value);
+void _nrf_set_reg_mb(char reg, char* buffer, char len);
 void _nrf_sleep(int millis);
 bool _nrf_wait_for_recv(int timeout);
 bool _nrf_wait_for_send();
-void _nrf_write_tx_payload(byte* buffer);
+void _nrf_write_tx_payload(char* buffer);
 bool _nrf_try_recv();
 
 bool nrf_init() {
@@ -140,7 +140,7 @@ bool nrf_init() {
     return _nrf_check_init();
 }
 
-bool nrf_recv(byte* addr, byte* buffer, int timeout) {
+bool nrf_recv(char* addr, char* buffer, int timeout) {
     bool success;
     _nrf_set_reg_mb(RX_ADDR_P0, addr, 5);
     _nrf_set_reg(CONFIG, NRF_CONFIG|((1<<PWR_UP)|(1<<PRIM_RX)));
@@ -156,7 +156,7 @@ bool nrf_recv(byte* addr, byte* buffer, int timeout) {
     return success;
 }
 
-bool nrf_send(byte* addr, byte* buffer) {
+bool nrf_send(char* addr, char* buffer) {
     bool success;
     _nrf_set_reg_mb(TX_ADDR, addr, 5);
     _nrf_set_reg_mb(RX_ADDR_P0, addr, 5);
@@ -173,7 +173,7 @@ bool nrf_send(byte* addr, byte* buffer) {
 }
 
 bool _nrf_check_init() {
-    byte status;
+    char status;
     status = _nrf_get_reg(STATUS);
     if (status != 0x0e)
         return FALSE;
@@ -191,8 +191,8 @@ void _nrf_config() {
     _nrf_set_reg(EN_AA, 1<<ENAA_P0);
 }
 
-byte _nrf_get_reg(byte reg) {
-    byte value;
+char _nrf_get_reg(char reg) {
+    char value;
     CSN = 0; {
         _nrf_rw(R_REGISTER | (REGISTER_MASK & reg));
         value = _nrf_rw(0);
@@ -200,8 +200,8 @@ byte _nrf_get_reg(byte reg) {
     return value;
 }
 
-void _nrf_get_reg_mb(byte reg, byte* buffer, byte len) {
-    byte i;
+void _nrf_get_reg_mb(char reg, char* buffer, char len) {
+    char i;
     CSN = 0; {
         _nrf_rw(R_REGISTER | (REGISTER_MASK & reg));
         for (i = 0; i < len; i++)
@@ -214,8 +214,8 @@ void _nrf_init_pins() {
     CSN = 1;
 }
 
-void _nrf_read_rx_payload(byte* buffer) {
-    byte i;
+void _nrf_read_rx_payload(char* buffer) {
+    char i;
     CSN = 0; {
         _nrf_rw(R_RX_PAYLOAD);
         for (i = 0; i < NRF_PAYLOAD_LEN; i++)
@@ -223,8 +223,8 @@ void _nrf_read_rx_payload(byte* buffer) {
     } CSN = 1;
 }
 
-byte _nrf_rw(byte value) {
-    byte i;
+char _nrf_rw(char value) {
+    char i;
     for (i = 0; i < 8; i++) {
         MOSI = (value & 0x80);
         value <<= 1;
@@ -235,15 +235,15 @@ byte _nrf_rw(byte value) {
     return value;
 }
 
-void _nrf_set_reg(byte reg, byte value) {
+void _nrf_set_reg(char reg, char value) {
     CSN = 0; {
         _nrf_rw(W_REGISTER | (REGISTER_MASK & reg));
         _nrf_rw(value);
     } CSN = 1;
 }
 
-void _nrf_set_reg_mb(byte reg, byte* buffer, byte len) {
-    byte i;
+void _nrf_set_reg_mb(char reg, char* buffer, char len) {
+    char i;
     CSN = 0; {
         _nrf_rw(W_REGISTER | (REGISTER_MASK & reg));
         for (i = 0; i < len; i++)
@@ -268,7 +268,7 @@ bool _nrf_wait_for_recv(int timeout) {
 }
 
 bool _nrf_wait_for_send() {
-    byte status;
+    char status;
     while (TRUE) {
         status = _nrf_get_reg(STATUS);
         if (status & (1<<TX_DS))
@@ -278,8 +278,8 @@ bool _nrf_wait_for_send() {
     }
 }
 
-void _nrf_write_tx_payload(byte* buffer) {
-    byte i;
+void _nrf_write_tx_payload(char* buffer) {
+    char i;
     CSN = 0; {
         _nrf_rw(W_TX_PAYLOAD);
         for (i = 0; i < NRF_PAYLOAD_LEN; i++)
@@ -288,7 +288,7 @@ void _nrf_write_tx_payload(byte* buffer) {
 }
 
 bool _nrf_try_recv() {
-    byte status = _nrf_get_reg(STATUS);
+    char status = _nrf_get_reg(STATUS);
     return status & (1<<RX_DR);
 }
 
