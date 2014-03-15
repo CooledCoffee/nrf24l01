@@ -1,5 +1,3 @@
-#include <8051.h>
-#include "../common.h"
 #include "../nrf.h"
 
 char ADDR_TEST_MASTER[] = {0x02, 0x02, 0x02, 0x02, 0x01};

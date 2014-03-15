@@ -1,7 +1,13 @@
 #ifndef __NRF_H__
 #define __NRF_H__
+#include <8051.h>
 
-#include "common.h"
+#ifndef __BOOLEAN__
+#define __BOOLEAN__
+typedef char bool;
+#define TRUE 1
+#define FALSE 0
+#endif
 
 // Memory Map
 #define CONFIG      0x00
