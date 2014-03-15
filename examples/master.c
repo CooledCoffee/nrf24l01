@@ -1,6 +1,5 @@
 #include <8051.h>
 #include "../common.h"
-#include "../stc89.h"
 #include "../nrf.h"
 
 byte ADDR_TEST_MASTER[] = {0x02, 0x02, 0x02, 0x02, 0x01};
@@ -11,7 +10,7 @@ void main() {
     byte failures;
     byte buffer[NRF_PAYLOAD_LEN];
     
-    sleep(1000);
+    _nrf_sleep(1000);
     if (!nrf_init()) {
         P0 = _nrf_get_reg(STATUS);
         return;

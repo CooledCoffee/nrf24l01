@@ -128,6 +128,7 @@ void _nrf_read_rx_payload(byte* buffer);
 byte _nrf_rw(byte value);
 void _nrf_set_reg(byte reg, byte value);
 void _nrf_set_reg_mb(byte reg, byte* buffer, byte len);
+void _nrf_sleep(int millis);
 bool _nrf_wait_for_recv(int timeout);
 bool _nrf_wait_for_send();
 void _nrf_write_tx_payload(byte* buffer);
@@ -253,14 +254,14 @@ void _nrf_set_reg_mb(byte reg, byte* buffer, byte len) {
 bool _nrf_wait_for_recv(int timeout) {
     if (timeout < 0) {
         while (!_nrf_try_recv())
-            sleep(100);
+            _nrf_sleep(100);
         return TRUE;
     } else {
         while (timeout > 0) {
             if (_nrf_try_recv())
                 return TRUE;
             timeout -= 100;
-            sleep(100);
+            _nrf_sleep(100);
         }
         return FALSE;
     }
@@ -289,6 +290,17 @@ void _nrf_write_tx_payload(byte* buffer) {
 bool _nrf_try_recv() {
     byte status = _nrf_get_reg(STATUS);
     return status & (1<<RX_DR);
+}
+
+void _nrf_sleep(int millis) {
+    char i;
+    while (millis--) {
+        for (i = 0; i < 100; i++) ;
+        for (i = 0; i < 100; i++) ;
+        for (i = 0; i < 100; i++) ;
+        for (i = 0; i < 100; i++) ;
+        for (i = 0; i < 47; i++) ;
+    }
 }
 
 #endif
