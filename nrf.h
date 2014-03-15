@@ -153,6 +153,10 @@ bool nrf_recv(char* addr, char* buffer, int timeout) {
     if (success)
         _nrf_read_rx_payload(buffer);
     _nrf_set_reg(STATUS, (1<<RX_DR));
+
+    // sleep 100ms to avoid sending a response when the other peer is still retyring request
+    _nrf_sleep(100);
+    
     return success;
 }
 
