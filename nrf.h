@@ -297,13 +297,29 @@ bool _nrf_try_recv() {
 }
 
 void _nrf_sleep(int millis) {
+    /*
+    We use the form "for (i = 0; i < 100; i++)" instead of "for (i = 100; i--;)".
+    Because the 1st form is actually twice fast as the 2nd form after SDCC optimization.
+    Note that this is compiler dependent.
+    
+    Also note that the 1st milli takes less loops because we have to take account of
+    the overhead of the function call.
+    This function takes 6 NOPs for entering and another 6 NOPs for return (the times
+    may be different for other functions).
+    */
     char i;
+    for (i = 0; i < 100; i++) ;
+    for (i = 0; i < 100; i++) ;
+    for (i = 0; i < 100; i++) ;
+    for (i = 0; i < 100; i++) ;
+    for (i = 0; i < 85; i++) ;
+    millis--;
     while (millis--) {
         for (i = 0; i < 100; i++) ;
         for (i = 0; i < 100; i++) ;
         for (i = 0; i < 100; i++) ;
         for (i = 0; i < 100; i++) ;
-        for (i = 0; i < 47; i++) ;
+        for (i = 0; i < 91; i++) ;
     }
 }
 
