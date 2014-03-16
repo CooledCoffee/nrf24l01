@@ -108,9 +108,8 @@ typedef char bool;
 #define FLUSH_TX      0xE1
 #define FLUSH_RX      0xE2
 #define REUSE_TX_PL   0xE3
-#define ACTIVATE      0x50 
+#define ACTIVATE      0x50
 #define R_RX_PL_WID   0x60
-#define NOP           0xFF
 
 #define NRF_CONFIG ((1<<EN_CRC)|(0<<CRCO))
 #define NRF_PAYLOAD_LEN 16
