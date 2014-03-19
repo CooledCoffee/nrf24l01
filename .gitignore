@@ -1,18 +1,16 @@
-# Object files
-*.o
-*.ko
-
-# Libraries
-*.lib
-*.a
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
+*.adb
+*.asm
+*.bin
+*.cdb
+*.hashes
+*.hex
+*.ihx
+*.lk
+*.lst
+*.map
+*.mcu8051ide
+*.mem
+*.omf
+*.rel
+*.rst
+*.sym
