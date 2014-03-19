@@ -1,7 +1,13 @@
 #ifndef __NRF_H__
 #define __NRF_H__
+#include <8051.h>
 
-#include "common.h"
+#ifndef __BOOLEAN__
+#define __BOOLEAN__
+typedef char bool;
+#define TRUE 1
+#define FALSE 0
+#endif
 
 // Memory Map
 #define CONFIG      0x00
@@ -102,35 +108,29 @@
 #define FLUSH_TX      0xE1
 #define FLUSH_RX      0xE2
 #define REUSE_TX_PL   0xE3
-#define ACTIVATE      0x50 
+#define ACTIVATE      0x50
 #define R_RX_PL_WID   0x60
-#define NOP           0xFF
-
-#define CE P1_4
-#define CSN P1_3
-#define SCK P1_2
-#define MOSI P1_1
-#define MISO P1_0
 
 #define NRF_CONFIG ((1<<EN_CRC)|(0<<CRCO))
 #define NRF_PAYLOAD_LEN 16
 
 bool nrf_init();
-bool nrf_send(byte* addr, byte* buffer);
-bool nrf_recv(byte* addr, byte* buffer, int timeout);
+bool nrf_send(char* addr, char* buffer);
+bool nrf_recv(char* addr, char* buffer, int timeout);
 
 bool _nrf_check_init();
 void _nrf_config();
-byte _nrf_get_reg(byte reg);
-void _nrf_get_reg_mb(byte reg, byte* buffer, byte len);
+char _nrf_get_reg(char reg);
+void _nrf_get_reg_mb(char reg, char* buffer, char len);
 void _nrf_init_pins();
-void _nrf_read_rx_payload(byte* buffer);
-byte _nrf_rw(byte value);
-void _nrf_set_reg(byte reg, byte value);
-void _nrf_set_reg_mb(byte reg, byte* buffer, byte len);
+void _nrf_read_rx_payload(char* buffer);
+char _nrf_rw(char value);
+void _nrf_set_reg(char reg, char value);
+void _nrf_set_reg_mb(char reg, char* buffer, char len);
+void _nrf_sleep(int millis);
 bool _nrf_wait_for_recv(int timeout);
 bool _nrf_wait_for_send();
-void _nrf_write_tx_payload(byte* buffer);
+void _nrf_write_tx_payload(char* buffer);
 bool _nrf_try_recv();
 
 bool nrf_init() {
@@ -139,39 +139,41 @@ bool nrf_init() {
     return _nrf_check_init();
 }
 
-bool nrf_recv(byte* addr, byte* buffer, int timeout) {
+bool nrf_recv(char* addr, char* buffer, int timeout) {
     bool success;
     _nrf_set_reg_mb(RX_ADDR_P0, addr, 5);
     _nrf_set_reg(CONFIG, NRF_CONFIG|((1<<PWR_UP)|(1<<PRIM_RX)));
+    CSN = 0; {
+        _nrf_rw(FLUSH_RX);
+    } CSN = 1;
     CE = 1; {
         success = _nrf_wait_for_recv(timeout);
     } CE = 0;
     if (success)
         _nrf_read_rx_payload(buffer);
     _nrf_set_reg(STATUS, (1<<RX_DR));
+    
     return success;
 }
 
-bool nrf_send(byte* addr, byte* buffer) {
+bool nrf_send(char* addr, char* buffer) {
     bool success;
     _nrf_set_reg_mb(TX_ADDR, addr, 5);
     _nrf_set_reg_mb(RX_ADDR_P0, addr, 5);
     _nrf_set_reg(CONFIG, NRF_CONFIG|((1<<PWR_UP)|(0<<PRIM_RX)));
+    CSN = 0; {
+        _nrf_rw(FLUSH_TX);
+    } CSN = 1;
     CE = 1; {
         _nrf_write_tx_payload(buffer);
         success = _nrf_wait_for_send();
-        if (!success) {
-            CSN = 0; {
-                _nrf_rw(FLUSH_TX);
-            } CSN = 1;
-        }
     } CE = 0;
     _nrf_set_reg(STATUS, (1<<TX_DS)|(1<<MAX_RT));
     return success;
 }
 
 bool _nrf_check_init() {
-    byte status;
+    char status;
     status = _nrf_get_reg(STATUS);
     if (status != 0x0e)
         return FALSE;
@@ -189,8 +191,8 @@ void _nrf_config() {
     _nrf_set_reg(EN_AA, 1<<ENAA_P0);
 }
 
-byte _nrf_get_reg(byte reg) {
-    byte value;
+char _nrf_get_reg(char reg) {
+    char value;
     CSN = 0; {
         _nrf_rw(R_REGISTER | (REGISTER_MASK & reg));
         value = _nrf_rw(0);
@@ -198,8 +200,8 @@ byte _nrf_get_reg(byte reg) {
     return value;
 }
 
-void _nrf_get_reg_mb(byte reg, byte* buffer, byte len) {
-    byte i;
+void _nrf_get_reg_mb(char reg, char* buffer, char len) {
+    char i;
     CSN = 0; {
         _nrf_rw(R_REGISTER | (REGISTER_MASK & reg));
         for (i = 0; i < len; i++)
@@ -212,8 +214,8 @@ void _nrf_init_pins() {
     CSN = 1;
 }
 
-void _nrf_read_rx_payload(byte* buffer) {
-    byte i;
+void _nrf_read_rx_payload(char* buffer) {
+    char i;
     CSN = 0; {
         _nrf_rw(R_RX_PAYLOAD);
         for (i = 0; i < NRF_PAYLOAD_LEN; i++)
@@ -221,8 +223,8 @@ void _nrf_read_rx_payload(byte* buffer) {
     } CSN = 1;
 }
 
-byte _nrf_rw(byte value) {
-    byte i;
+char _nrf_rw(char value) {
+    char i;
     for (i = 0; i < 8; i++) {
         MOSI = (value & 0x80);
         value <<= 1;
@@ -233,15 +235,15 @@ byte _nrf_rw(byte value) {
     return value;
 }
 
-void _nrf_set_reg(byte reg, byte value) {
+void _nrf_set_reg(char reg, char value) {
     CSN = 0; {
         _nrf_rw(W_REGISTER | (REGISTER_MASK & reg));
         _nrf_rw(value);
     } CSN = 1;
 }
 
-void _nrf_set_reg_mb(byte reg, byte* buffer, byte len) {
-    byte i;
+void _nrf_set_reg_mb(char reg, char* buffer, char len) {
+    char i;
     CSN = 0; {
         _nrf_rw(W_REGISTER | (REGISTER_MASK & reg));
         for (i = 0; i < len; i++)
@@ -252,21 +254,21 @@ void _nrf_set_reg_mb(byte reg, byte* buffer, byte len) {
 bool _nrf_wait_for_recv(int timeout) {
     if (timeout < 0) {
         while (!_nrf_try_recv())
-            sleep(100);
+            _nrf_sleep(100);
         return TRUE;
     } else {
         while (timeout > 0) {
             if (_nrf_try_recv())
                 return TRUE;
             timeout -= 100;
-            sleep(100);
+            _nrf_sleep(100);
         }
         return FALSE;
     }
 }
 
 bool _nrf_wait_for_send() {
-    byte status;
+    char status;
     while (TRUE) {
         status = _nrf_get_reg(STATUS);
         if (status & (1<<TX_DS))
@@ -276,8 +278,8 @@ bool _nrf_wait_for_send() {
     }
 }
 
-void _nrf_write_tx_payload(byte* buffer) {
-    byte i;
+void _nrf_write_tx_payload(char* buffer) {
+    char i;
     CSN = 0; {
         _nrf_rw(W_TX_PAYLOAD);
         for (i = 0; i < NRF_PAYLOAD_LEN; i++)
@@ -286,8 +288,35 @@ void _nrf_write_tx_payload(byte* buffer) {
 }
 
 bool _nrf_try_recv() {
-    byte status = _nrf_get_reg(STATUS);
+    char status = _nrf_get_reg(STATUS);
     return status & (1<<RX_DR);
+}
+
+void _nrf_sleep(int millis) {
+    /*
+    We use the form "for (i = 0; i < 100; i++)" instead of "for (i = 100; i--;)".
+    Because the 1st form is actually twice fast as the 2nd form after SDCC optimization.
+    Note that this is compiler dependent.
+    
+    Also note that the 1st milli takes less loops because we have to take account of
+    the overhead of the function call.
+    This function takes 6 NOPs for entering and another 6 NOPs for return (the times
+    may be different for other functions).
+    */
+    char i;
+    for (i = 0; i < 100; i++) ;
+    for (i = 0; i < 100; i++) ;
+    for (i = 0; i < 100; i++) ;
+    for (i = 0; i < 100; i++) ;
+    for (i = 0; i < 85; i++) ;
+    millis--;
+    while (millis--) {
+        for (i = 0; i < 100; i++) ;
+        for (i = 0; i < 100; i++) ;
+        for (i = 0; i < 100; i++) ;
+        for (i = 0; i < 100; i++) ;
+        for (i = 0; i < 91; i++) ;
+    }
 }
 
 #endif

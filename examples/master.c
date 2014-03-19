@@ -1,17 +1,19 @@
-#include <8051.h>
-#include "../common.h"
-#include "../stc89.h"
+#define CE P1_4
+#define CSN P1_3
+#define SCK P1_2
+#define MOSI P1_1
+#define MISO P1_0
 #include "../nrf.h"
 
-byte ADDR_TEST_MASTER[] = {0x02, 0x02, 0x02, 0x02, 0x01};
-byte ADDR_TEST_SLAVE[] = {0x02, 0x02, 0x02, 0x02, 0x02};
+char ADDR_TEST_MASTER[] = {0x02, 0x02, 0x02, 0x02, 0x01};
+char ADDR_TEST_SLAVE[] = {0x02, 0x02, 0x02, 0x02, 0x02};
 
 void main() {
     int i;
-    byte failures;
-    byte buffer[NRF_PAYLOAD_LEN];
+    char failures;
+    char buffer[NRF_PAYLOAD_LEN];
     
-    sleep(1000);
+    _nrf_sleep(1000);
     if (!nrf_init()) {
         P0 = _nrf_get_reg(STATUS);
         return;
