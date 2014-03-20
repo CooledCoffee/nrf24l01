@@ -37,7 +37,7 @@ Please check out the examples for detail usage.
 Compatibility
 =============
 
-This library is tested on STC89C52RC2 and should be compatible with AT89S52 and similar mcus. It assumes 11.0952 MHz crystal and 12 clocks per instruction. If you mcu is different from this configuration, you will need to replace the \_nrf\_sleep function with your own implementation.
+This library is tested on STC89C52RC2 @11.0952MHz. If you mcu is different from this configuration, you will need to replace the \_nrf\_sleep function with your own implementation.
 
 Author
 ======
