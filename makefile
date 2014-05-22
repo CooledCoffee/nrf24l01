@@ -6,5 +6,5 @@ all:
 	echo "success"
 
 clean:
-	rm master.*
-	rm slave.*
+	rm -f master.*
+	rm -f slave.*
