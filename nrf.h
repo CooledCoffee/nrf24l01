@@ -164,8 +164,8 @@ bool nrf_send(char* addr, char* buffer) {
     CSN = 0; {
         _nrf_rw(FLUSH_TX);
     } CSN = 1;
+    _nrf_write_tx_payload(buffer);
     CE = 1; {
-        _nrf_write_tx_payload(buffer);
         success = _nrf_wait_for_send();
     } CE = 0;
     _nrf_set_reg(STATUS, (1<<TX_DS)|(1<<MAX_RT));
