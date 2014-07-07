@@ -112,7 +112,7 @@ typedef char bool;
 #define R_RX_PL_WID   0x60
 
 #define NRF_CONFIG ((1<<EN_CRC)|(0<<CRCO))
-#define NRF_PAYLOAD_LEN 16
+#define NRF_PAYLOAD_LEN 32
 
 bool nrf_init();
 bool nrf_send(char* addr, char* buffer);
